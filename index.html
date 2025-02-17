@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prakiraan Cuaca & AQI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .weather-container {
+            max-width: 800px;
+            margin: auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .current-weather {
+            font-size: 20px;
+        }
+
+        .temp-info h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .forecast, .aqi-section {
+            margin: 20px 0;
+        }
+
+        .week-forecast {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .day {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            width: 60px;
+        }
+
+        .aqi-section h3 {
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+		
+		.weather-container {
+            max-width: 800px;
+            margin: auto;
+            background: rgba(34, 34, 34, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 20px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .aqi-section h3 {
+			margin-bottom: 10px; /* Reduces the gap under the title */
+			color: #FFD700;
+		}
+
+		.aqi-table {
+			width: 100%;
+			margin-top: -150px; /* Removes any space above the table */
+			border-collapse: collapse;
+			overflow: hidden;
+			border-radius: 10px;
+			box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.2);
+			background: rgba(255, 255, 255, 0.1);
+			backdrop-filter: blur(10px);
+		}
+
+
+        .aqi-table th, .aqi-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .aqi-table th {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .aqi-table tr:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .aqi-status {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .aqi-good { background: #00c853; color: white; }
+        .aqi-moderate { background: #ffeb3b; color: black; }
+        .aqi-unhealthy { background: #ff5722; color: white; }
+        .aqi-very-unhealthy { background: #d50000; color: white; }
+
+        .icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+		.emoji {
+			font-size: 3em; /* Increase the emoji size */
+			vertical-align: middle; /* Ensures emoji stays aligned with text */
+			line-height: 1; /* Adjusts line height to ensure proper alignment */
+		}
+
+		
+    </style>
+</head>
+<body>
+
+<div class="weather-container">
+    <div class="current-weather">
+        <div class="temp-info">
+            <h1>28°C</h1>
+            <p>Presipitasi: 35% | Kelembapan: 75%</p>
+            <p>Angin: 8 km/h</p>
+            <p class="status"><span class="emoji">⛈️</span> Badai petir ringan dan hujan</p>
+        </div>
+    </div>
+
+    <div class="forecast">
+        <h3>🌡️ Prakiraan Suhu</h3>
+        <canvas id="tempChart"></canvas>
+    </div>
+
+    <div class="week-forecast">
+        <div class="day">Sen <br> 🌧️ 29° 24°</div>
+        <div class="day">Sel <br> ☁️ 29° 24°</div>
+        <div class="day">Rab <br> 🌧️ 29° 24°</div>
+        <div class="day">Kam <br> 🌧️ 29° 24°</div>
+        <div class="day">Jum <br> 🌦️ 31° 24°</div>
+        <div class="day">Sab <br> ☁️ 29° 24°</div>
+        <div class="day">Min <br> 🌦️ 30° 24°</div>
+    </div>
+
+    <div class="aqi-section">
+        <h3>🌫️ Indeks Kualitas Udara (AQI)</h3>
+        <canvas id="aqiChart"></canvas>
+    </div>
+	
+		<div class="aqi-section">
+        <h3>🌡️ Prakiraan Suhu</h3>
+        <canvas id="tempChart"></canvas>
+    </div>
+        <table class="aqi-table">
+            <tr>
+                <th>Waktu</th>
+                <th>AQI</th>
+                <th>Kategori</th>
+            </tr>
+            <tr>
+                <td>17:00</td>
+                <td>65</td>
+                <td><span class="aqi-status aqi-moderate">🌤️ Moderat</span></td>
+            </tr>
+            <tr>
+                <td>20:00</td>
+                <td>70</td>
+                <td><span class="aqi-status aqi-moderate">🌤️ Moderat</span></td>
+            </tr>
+            <tr>
+                <td>23:00</td>
+                <td>80</td>
+                <td><span class="aqi-status aqi-unhealthy">🌫️ Tidak Sehat</span></td>
+            </tr>
+            <tr>
+                <td>02:00</td>
+                <td>90</td>
+                <td><span class="aqi-status aqi-unhealthy">🌫️ Tidak Sehat</span></td>
+            </tr>
+            <tr>
+                <td>05:00</td>
+                <td>85</td>
+                <td><span class="aqi-status aqi-moderate">🌤️ Moderat</span></td>
+            </tr>
+            <tr>
+                <td>08:00</td>
+                <td>75</td>
+                <td><span class="aqi-status aqi-moderate">🌤️ Moderat</span></td>
+            </tr>
+            <tr>
+                <td>11:00</td>
+                <td>60</td>
+                <td><span class="aqi-status aqi-good">🍃 Baik</span></td>
+            </tr>
+            <tr>
+                <td>14:00</td>
+                <td>50</td>
+                <td><span class="aqi-status aqi-good">🍃 Baik</span></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+	// Grafik AQI dengan Gradien Warna
+const aqiCtx = document.getElementById('aqiChart').getContext('2d');
+
+// Buat gradien warna untuk latar belakang grafik AQI
+const gradient = aqiCtx.createLinearGradient(0, 0, 0, 300);
+gradient.addColorStop(0, 'rgba(255, 0, 0, 0.8)'); // Merah (buruk)
+gradient.addColorStop(0.5, 'rgba(255, 165, 0, 0.6)'); // Oranye (sedang)
+gradient.addColorStop(1, 'rgba(0, 255, 0, 0.6)'); // Hijau (baik)
+
+new Chart(aqiCtx, {
+    type: 'line',
+    data: {
+        labels: ['17:00', '20:00', '23:00', '02:00', '05:00', '08:00', '11:00', '14:00'],
+        datasets: [{
+            label: 'AQI',
+            data: [65, 70, 80, 90, 85, 75, 60, 50],
+            borderColor: '#FFD700',
+            backgroundColor: gradient,
+            borderWidth: 3,
+            pointRadius: 6,
+            pointBackgroundColor: 'white',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            x: { ticks: { color: 'white' } },
+            y: {
+                ticks: { color: 'white' },
+                beginAtZero: true,
+                suggestedMax: 150
+            }
+        }
+    }
+});
+
+// Grafik Suhu
+const tempCtx = document.getElementById('tempChart').getContext('2d');
+new Chart(tempCtx, {
+    type: 'line',
+    data: {
+        labels: ['17:00', '20:00', '23:00', '02:00', '05:00', '08:00', '11:00', '14:00'],
+        datasets: [{
+            label: 'Suhu (°C)',
+            data: [28, 26, 24, 24, 24, 26, 28, 29],
+            borderColor: 'yellow',
+            backgroundColor: 'rgba(255, 215, 0, 0.3)',
+            borderWidth: 2,
+            pointRadius: 5,
+            pointBackgroundColor: 'white',
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            x: { ticks: { color: 'white' } },
+            y: { ticks: { color: 'white' }, beginAtZero: false }
+        }
+    }
+});
+
+</script>
+
+</body>
+</html>
